@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loto LyovT Persistent Edition</title>
+<title>Loto LyovT Multi-Winner Edition</title>
 <style>
 :root {
   --main-bg: radial-gradient(circle at top, #1a1d2b, #0b0d14);
@@ -13,7 +13,7 @@
   --accent-color: #ffd700;
 }
 
-/* ԱՆԻՄԱՑԻԱՆԵՐ (0-9) */
+/* ԱՆԻՄԱՑԻԱՆԵՐ */
 @keyframes anim0 { 0% { transform: translateX(200px) rotate(360deg); opacity: 0; } 100% { transform: translateX(0) rotate(0deg); opacity: 1; } }
 @keyframes anim1 { 0% { transform: scale(0.1) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
 @keyframes anim2 { 0% { transform: translateY(-150px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
@@ -39,11 +39,10 @@ button {
 }
 
 #currentNumber { 
-  width: 70px; height: 90px; line-height: 90px; text-align: center; margin: 15px 0; 
-  font-size: 2.3em; font-weight: bold; color: #000;
-  background: radial-gradient(circle at 40% 40%, #fff79a, #ffd700, #ffb900);
+  width: 80px; height: 100px; line-height: 100px; text-align: center; margin: 15px 0; 
+  font-size: 2.5em; font-weight: bold; color: #000;
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  border: 2px solid #b39700; box-shadow: 0 8px 15px rgba(0,0,0,0.5); opacity: 0; 
+  border: 3px solid rgba(255,255,255,0.4); box-shadow: 0 10px 20px rgba(0,0,0,0.6); opacity: 0; 
 }
 
 .cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; flex-direction: column-reverse; }
@@ -69,27 +68,27 @@ button {
 .card-name {
   flex-grow: 1; padding: 3px; border: 1px solid rgba(255, 59, 48, 0.5); border-radius: 4px;
   text-align: center; font-weight: bold; background: rgba(0,0,0,0.3); 
-  color: #ff3b30; /* Քարտի վրայի անունը կարմիր */
-  font-size: 0.9em; width: 60px; outline: none;
+  color: #ff3b30; font-size: 0.9em; width: 60px; outline: none;
 }
 
 .row { display: flex; }
 .cell {
-  width: 34px; height: 44px; margin: 1.5px; line-height: 44px; text-align: center; 
+  width: 36px; height: 46px; margin: 1.5px; line-height: 46px; text-align: center; 
   background: var(--cell-bg); border: 1px solid var(--cell-border);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; color: #fff; font-weight: 800; font-size: 1.1em;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; 
+  font-weight: 900; font-size: 1.1em;
+  transition: background 0.2s, color 0.1s;
 }
 
 .cell.selected {
-  background: radial-gradient(circle at 40% 40%, #fff79a, #ffd700, #ffb900) !important;
-  color: #000 !important; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40% !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 1px solid #b39700 !important;
+  color: #000 !important; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
+  border: 1px solid rgba(0,0,0,0.2) !important;
   animation: drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes drop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-/* Մեծ Հաղթանակի Պատուհան */
 #winOverlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center;
@@ -102,8 +101,9 @@ button {
 }
 .win-content h1 { margin: 0; font-size: 1.5em; text-transform: uppercase; color: #fff; font-weight: normal; }
 .win-content p#winnerNameDisplay { 
-  font-size: 3.5em; font-weight: 900; margin: 20px 0; color: #ff3b30;
+  font-size: 2.5em; font-weight: 900; margin: 20px 0; color: #ff3b30;
   text-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+  white-space: pre-wrap; /* Թույլ է տալիս անունները գրել նոր տողից */
 }
 .win-content button { background: var(--accent-color); color: #000; margin-top: 25px; font-size: 1.1em; padding: 10px 25px; border-radius: 8px;}
 
@@ -116,7 +116,7 @@ button {
 
 <div id="winOverlay">
   <div class="win-content">
-    <h1>🏆 ՀԱՂԹԱՆԱԿ</h1>
+    <h1 id="winTitle">🏆 ՀԱՂԹԱՆԱԿ</h1>
     <p id="winnerNameDisplay"></p>
     <button onclick="closeWinOverlay()">Շարունակել</button>
   </div>
@@ -150,6 +150,16 @@ const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
 let numbers=[], drawnNumbers=[], autoPlay=null, isTurbo=false, currentAnim = 0;
 const cardsContainer=document.getElementById('cardsContainer');
 const globalRanges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
+
+function getNumberTextColor(n) {
+    const hue = (n - 1) * 4;
+    return `hsl(${hue}, 100%, 65%)`;
+}
+
+function getNumberGradient(n) {
+    const hue = (n - 1) * 4;
+    return `radial-gradient(circle at 40% 40%, hsl(${hue}, 90%, 80%), hsl(${hue}, 85%, 55%), hsl(${hue}, 85%, 35%))`;
+}
 
 function initNumbers(){
     numbers=[...Array(90).keys()].map(i=>i+1);
@@ -189,8 +199,6 @@ function createCard(index, savedData = null){
     
     const nameInput = document.createElement('input'); nameInput.className = 'card-name';
     nameInput.value = savedData ? savedData.name : 'Կարտ ' + index;
-    
-    // Ավտոմատ նշել տեքստը սեղմելիս
     nameInput.onclick = function() { this.select(); };
 
     header.append(btnBox, nameInput);
@@ -203,12 +211,25 @@ function createCard(index, savedData = null){
             const row=document.createElement('div'); row.className='row';
             for(let c=0;c<9;c++){
                 const cell=document.createElement('div'); cell.className='cell';
-                if(data) cell.textContent = data.cells[r][c];
+                
+                const setCellNumber = (n) => {
+                    cell.textContent = n;
+                    if (n) {
+                        cell.style.color = getNumberTextColor(parseInt(n));
+                    } else {
+                        cell.style.color = '#fff';
+                    }
+                };
+
+                if(data) setCellNumber(data.cells[r][c]);
+                
                 cell.onclick=()=>{
                     if(edit.dataset.edit==='true'){
-                        let v=prompt('Թիվ',cell.textContent); if(v !== null) cell.textContent=v;
+                        let v=prompt('Թիվ',cell.textContent); 
+                        if(v !== null) setCellNumber(v);
                     } else if(!card.classList.contains('frozen') && cell.textContent) {
-                        cell.classList.toggle('selected'); checkWinner(card);
+                        toggleCell(cell);
+                        checkAllWinners(); // Մանուալ սեղմելիս էլ ստուգում ենք բոլորին
                     }
                 };
                 row.appendChild(cell);
@@ -218,7 +239,9 @@ function createCard(index, savedData = null){
                  cols.forEach(c => {
                     let cell = row.childNodes[c], n;
                     do{ n=Math.floor(Math.random()*(globalRanges[c][1]-globalRanges[c][0]+1))+globalRanges[c][0]; }while(used.has(n));
-                    used.add(n); cell.textContent=n;
+                    used.add(n); 
+                    cell.textContent=n;
+                    cell.style.color = getNumberTextColor(n);
                  });
             }
             card.appendChild(row);
@@ -240,45 +263,81 @@ function createCard(index, savedData = null){
     cardsContainer.appendChild(container);
 }
 
+function toggleCell(cell) {
+    const val = parseInt(cell.textContent);
+    if (!val) return;
+    cell.classList.toggle('selected');
+    if (cell.classList.contains('selected')) {
+        cell.style.background = getNumberGradient(val);
+        cell.style.color = '#000';
+    } else {
+        cell.style.background = 'var(--cell-bg)';
+        cell.style.color = getNumberTextColor(val);
+    }
+}
+
+// Ֆունկցիա՝ բոլոր հնարավոր հաղթողներին գտնելու համար
+function checkAllWinners() {
+    let winners = [];
+    document.querySelectorAll('.card').forEach(card => {
+        const cells = [...card.querySelectorAll('.cell')].filter(c => c.textContent);
+        if (cells.length && cells.every(c => c.classList.contains('selected'))) {
+            winners.push(card.querySelector('.card-name').value);
+        }
+    });
+
+    if (winners.length > 0) {
+        stopAutoPlay();
+        const display = document.getElementById('winnerNameDisplay');
+        const title = document.getElementById('winTitle');
+        
+        title.textContent = winners.length > 1 ? "🏆 ՀԱՂԹՈՂՆԵՐ" : "🏆 ՀԱՂԹԱՆԱԿ";
+        display.textContent = winners.join("\n"); // Անունները գրում ենք նոր տողից
+        
+        document.getElementById('winOverlay').style.display = 'flex';
+        winSound.play();
+        return true;
+    }
+    return false;
+}
+
 function drawNumber(){
     if(!numbers.length) return;
     let n = numbers.splice(Math.floor(Math.random()*numbers.length),1)[0];
     drawnNumbers.push(n);
+    
     const cn = document.getElementById('currentNumber');
-    cn.textContent=n; cn.style.opacity='1';
+    cn.textContent=n; 
+    cn.style.background = getNumberGradient(n); 
+    cn.style.opacity='1';
     cn.style.animation = 'none'; void cn.offsetWidth;
     cn.style.animation = `anim${currentAnim} 0.7s forwards`;
     
     let stopNeeded = false;
 
+    // 1. Նախ նշում ենք բոլոր քարտերի վրա համապատասխան թիվը
     document.querySelectorAll('.card').forEach(card => {
         if (!card.classList.contains('frozen')) {
             card.querySelectorAll('.cell').forEach(c => {
                 if (+c.textContent === n) {
                     c.classList.add('selected');
-                    checkWinner(card);
+                    c.style.background = getNumberGradient(n);
+                    c.style.color = '#000';
                 }
             });
 
+            // Ստուգում ենք «Stop»-ի կարիքը (2 հատ մնալու դեպքում)
             let cells = [...card.querySelectorAll('.cell')].filter(c => c.textContent !== "");
             let unselectedCount = cells.filter(c => !c.classList.contains('selected')).length;
             if (unselectedCount === 2) stopNeeded = true;
         }
     });
 
-    if (stopNeeded && autoPlay) {
-        stopAutoPlay();
-    }
-}
+    // 2. Հետո նոր ստուգում ենք հաղթողներին
+    const hasWinner = checkAllWinners();
 
-function checkWinner(card){
-    const cells=[...card.querySelectorAll('.cell')].filter(c=>c.textContent);
-    if(cells.length && cells.every(c=>c.classList.contains('selected'))){
+    if (!hasWinner && stopNeeded && autoPlay) {
         stopAutoPlay();
-        const winnerName = card.querySelector('.card-name').value;
-        document.getElementById('winnerNameDisplay').textContent = winnerName;
-        document.getElementById('winOverlay').style.display = 'flex';
-        winSound.play();
     }
 }
 
@@ -287,16 +346,29 @@ document.getElementById('autoMarkBtn').onclick = () => {
         if (!card.classList.contains('frozen')) {
             card.querySelectorAll('.cell').forEach(cell => {
                 let val = parseInt(cell.textContent);
-                if (drawnNumbers.includes(val)) cell.classList.add('selected');
+                if (drawnNumbers.includes(val)) {
+                    cell.classList.add('selected');
+                    cell.style.background = getNumberGradient(val);
+                    cell.style.color = '#000';
+                }
             });
-            checkWinner(card);
         }
     });
+    checkAllWinners();
 };
 
 document.getElementById('resetBtn').onclick = () => {
     initNumbers();
-    document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('selected'));
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.remove('selected');
+        cell.style.background = 'var(--cell-bg)';
+        const val = parseInt(cell.textContent);
+        if (val) {
+            cell.style.color = getNumberTextColor(val);
+        } else {
+            cell.style.color = '#fff';
+        }
+    });
     stopAutoPlay();
     closeWinOverlay();
 };
