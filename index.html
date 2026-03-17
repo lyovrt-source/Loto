@@ -11,6 +11,7 @@
   --cell-bg: rgba(255, 255, 255, 0.08);
   --cell-border: rgba(255, 255, 255, 0.15);
   --accent-color: #ffd700;
+  --challenge-red: #ff0000; /* Վառ կարմիր գույնը */
 }
 
 /* ԱՆԻՄԱՑԻԱՆԵՐ */
@@ -47,9 +48,29 @@ button {
 
 .cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; flex-direction: column-reverse; }
 
+/* Քարտի արտաքին կոնտեյները, որը պահում է քարտը և տեքստը */
+.card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
 .card { 
   background: var(--card-bg); padding: 12px 10px; border-radius: 10px; 
   border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(6px); position: relative;
+  width: 345px; /* Ֆիքսված լայնություն չափսերը պահելու համար */
+}
+
+/* Վառ կարմիր գրվածքը քարտի տակ */
+.challenge-label {
+  color: var(--challenge-red);
+  font-size: 0.85em;
+  font-weight: bold;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
 }
 
 .card.frozen { filter: grayscale(1) brightness(0.5); }
@@ -103,7 +124,7 @@ button {
 .win-content p#winnerNameDisplay { 
   font-size: 2.5em; font-weight: 900; margin: 20px 0; color: #ff3b30;
   text-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
-  white-space: pre-wrap; /* Թույլ է տալիս անունները գրել նոր տողից */
+  white-space: pre-wrap; 
 }
 .win-content button { background: var(--accent-color); color: #000; margin-top: 25px; font-size: 1.1em; padding: 10px 25px; border-radius: 8px;}
 
@@ -182,14 +203,18 @@ function closeWinOverlay() {
 }
 
 function createCard(index, savedData = null){
-    const container = document.createElement('div');
-    const card=document.createElement('div'); card.className='card'; 
-    container.appendChild(card);
+    // Ստեղծում ենք wrapper, որը կպահի քարտը և ներքևի պիտակը
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card-wrapper';
+
+    const card = document.createElement('div'); 
+    card.className = 'card'; 
+    wrapper.appendChild(card);
     
     const header = document.createElement('div'); header.className = 'card-header-box';
     const btnBox = document.createElement('div'); btnBox.className = 'card-actions';
     
-    const del = document.createElement('button'); del.textContent = '🗑️'; del.onclick = () => container.remove();
+    const del = document.createElement('button'); del.textContent = '🗑️'; del.onclick = () => wrapper.remove();
     const edit = document.createElement('button'); edit.textContent = '✏️'; edit.dataset.edit='false';
     const refresh = document.createElement('button'); refresh.textContent = '🔄';
     const freeze = document.createElement('button'); freeze.textContent = '❄️';
@@ -229,7 +254,7 @@ function createCard(index, savedData = null){
                         if(v !== null) setCellNumber(v);
                     } else if(!card.classList.contains('frozen') && cell.textContent) {
                         toggleCell(cell);
-                        checkAllWinners(); // Մանուալ սեղմելիս էլ ստուգում ենք բոլորին
+                        checkAllWinners();
                     }
                 };
                 row.appendChild(cell);
@@ -259,8 +284,14 @@ function createCard(index, savedData = null){
         all.push({name: nameInput.value, cells: cells});
         localStorage.setItem('loto_cards', JSON.stringify(all)); alert("✅");
     };
+
+    // Ավելացնում ենք կարմիր գրվածքը քարտի տակ
+    const challengeLabel = document.createElement('div');
+    challengeLabel.className = 'challenge-label';
+    challengeLabel.textContent = 'logic & math challenge';
+    wrapper.appendChild(challengeLabel);
     
-    cardsContainer.appendChild(container);
+    cardsContainer.appendChild(wrapper);
 }
 
 function toggleCell(cell) {
@@ -276,7 +307,6 @@ function toggleCell(cell) {
     }
 }
 
-// Ֆունկցիա՝ բոլոր հնարավոր հաղթողներին գտնելու համար
 function checkAllWinners() {
     let winners = [];
     document.querySelectorAll('.card').forEach(card => {
@@ -292,7 +322,7 @@ function checkAllWinners() {
         const title = document.getElementById('winTitle');
         
         title.textContent = winners.length > 1 ? "🏆 ՀԱՂԹՈՂՆԵՐ" : "🏆 ՀԱՂԹԱՆԱԿ";
-        display.textContent = winners.join("\n"); // Անունները գրում ենք նոր տողից
+        display.textContent = winners.join("\n");
         
         document.getElementById('winOverlay').style.display = 'flex';
         winSound.play();
@@ -315,7 +345,6 @@ function drawNumber(){
     
     let stopNeeded = false;
 
-    // 1. Նախ նշում ենք բոլոր քարտերի վրա համապատասխան թիվը
     document.querySelectorAll('.card').forEach(card => {
         if (!card.classList.contains('frozen')) {
             card.querySelectorAll('.cell').forEach(c => {
@@ -326,14 +355,12 @@ function drawNumber(){
                 }
             });
 
-            // Ստուգում ենք «Stop»-ի կարիքը (2 հատ մնալու դեպքում)
             let cells = [...card.querySelectorAll('.cell')].filter(c => c.textContent !== "");
             let unselectedCount = cells.filter(c => !c.classList.contains('selected')).length;
             if (unselectedCount === 2) stopNeeded = true;
         }
     });
 
-    // 2. Հետո նոր ստուգում ենք հաղթողներին
     const hasWinner = checkAllWinners();
 
     if (!hasWinner && stopNeeded && autoPlay) {
