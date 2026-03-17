@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loto LyovT Persistent Edition</title>
+<style>
+:root {
+  --main-bg: radial-gradient(circle at top, #1a1d2b, #0b0d14);
+  --card-bg: rgba(0, 0, 0, 0.55); 
+  --cell-bg: rgba(255, 255, 255, 0.08);
+  --cell-border: rgba(255, 255, 255, 0.15);
+  --accent-color: #ffd700;
+}
+
+/* ԱՆԻՄԱՑԻԱՆԵՐ (0-9) */
+@keyframes anim0 { 0% { transform: translateX(200px) rotate(360deg); opacity: 0; } 100% { transform: translateX(0) rotate(0deg); opacity: 1; } }
+@keyframes anim1 { 0% { transform: scale(0.1) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes anim2 { 0% { transform: translateY(-150px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+@keyframes anim3 { 0% { transform: perspective(400px) rotateY(90deg); opacity: 0; } 100% { transform: perspective(400px) rotateY(0deg); opacity: 1; } }
+@keyframes anim4 { 0% { transform: scale(3); opacity: 0; filter: blur(15px); } 100% { transform: scale(1); opacity: 1; filter: blur(0); } }
+@keyframes anim5 { 0% { transform: skewX(-50deg); opacity: 0; } 100% { transform: skewX(0); opacity: 1; } }
+@keyframes anim6 { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.3); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes anim7 { 0% { clip-path: inset(50% 0 50% 0); opacity: 0; } 100% { clip-path: inset(0 0 0 0); opacity: 1; } }
+@keyframes anim8 { 0% { transform: rotate(15deg) translateY(100px); opacity: 0; } 100% { transform: rotate(0) translateY(0); opacity: 1; } }
+@keyframes anim9 { 0% { filter: hue-rotate(180deg); transform: scale(0.5); opacity: 0; } 100% { filter: hue-rotate(0); transform: scale(1); opacity: 1; } }
+
+body {
+  font-family: sans-serif; background: var(--main-bg); background-attachment: fixed;
+  color: #fff; display: flex; flex-direction: column; align-items: center;
+  padding: 20px 10px; min-height: 100vh; margin: 0; overflow-x: hidden;
+}
+
+.controls { margin: 10px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+button {
+  padding: 8px 14px; border: none; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(135deg, #444, #222); color: var(--accent-color);
+  font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.4); transition: 0.2s;
+}
+
+#currentNumber { 
+  width: 70px; height: 90px; line-height: 90px; text-align: center; margin: 15px 0; 
+  font-size: 2.3em; font-weight: bold; color: #000;
+  background: radial-gradient(circle at 40% 40%, #fff79a, #ffd700, #ffb900);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border: 2px solid #b39700; box-shadow: 0 8px 15px rgba(0,0,0,0.5); opacity: 0; 
+}
+
+.cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; flex-direction: column-reverse; }
+
+.card { 
+  background: var(--card-bg); padding: 12px 10px; border-radius: 10px; 
+  border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(6px); position: relative;
+}
+
+.card.frozen { filter: grayscale(1) brightness(0.5); }
+.card.frozen::after {
+  content: "PAUSE"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
+  background: red; color: white; padding: 4px 10px; font-weight: bold; border: 1px solid white; z-index: 100;
+}
+
+.card-header-box { display: flex; align-items: center; width: 100%; margin-bottom: 8px; gap: 5px; }
+.card-actions { display: flex; gap: 2px; }
+.card-actions button { 
+  padding: 4px 6px; font-size: 0.75em; background: rgba(255,255,255,0.1); 
+  border: 1px solid rgba(255,215,0,0.2); border-radius: 4px;
+}
+
+.card-name {
+  flex-grow: 1; padding: 3px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
+  text-align: center; font-weight: bold; background: transparent; color: #fff; font-size: 0.8em; width: 50px;
+}
+
+.row { display: flex; }
+.cell {
+  width: 34px; height: 44px; margin: 1.5px; line-height: 44px; text-align: center; 
+  background: var(--cell-bg); border: 1px solid var(--cell-border);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; color: #fff; font-weight: 800; font-size: 1.1em;
+}
+
+.cell.selected {
+  background: radial-gradient(circle at 40% 40%, #fff79a, #ffd700, #ffb900) !important;
+  color: #000 !important; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40% !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 1px solid #b39700 !important;
+  animation: drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes drop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Մեծ Հաղթանակի Պատուհան */
+#winOverlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(10px);
+}
+.win-content {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  padding: 40px; border-radius: 25px; text-align: center;
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+  animation: winPop 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+  color: #000; max-width: 90%;
+}
+.win-content h1 { margin: 0; font-size: 3em; text-transform: uppercase; }
+.win-content p { font-size: 1.5em; font-weight: bold; margin: 15px 0; }
+.win-content button { background: #000; color: #ffd700; margin-top: 20px; font-size: 1.2em; padding: 10px 25px; }
+
+@keyframes winPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+.bottom-controls { margin-top: 25px; padding-top: 15px; border-top: 1px dashed var(--accent-color); width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div id="winOverlay">
+  <div class="win-content">
+    <h1>🏆 ՀԱՂԹԱՆԱԿ</h1>
+    <p id="winnerNameDisplay"></p>
+    <button onclick="closeWinOverlay()">Շարունակել</button>
+  </div>
+</div>
+
+<div class="controls">
+  <input type="number" id="cardCount" value="1" min="1" max="15" style="width: 50px; border-radius: 8px; padding: 5px; border: 1px solid var(--accent-color); background: #222; color: #fff;">
+  <button id="loadSavedBtn">📂</button>
+  <button id="generateCards">Սարքել</button>
+  <button id="addCard">➕</button>
+</div>
+
+<div class="cards" id="cardsContainer"></div>
+
+<div id="currentNumber">-</div>
+
+<div class="controls">
+  <button id="drawNumber">Հանել Թիվ</button>
+  <button id="autoPlayBtn">Auto</button>
+  <button id="autoMarkBtn" style="background: linear-gradient(135deg, #2e7d32, #1b5e20); color: #fff;">Auto Mark</button>
+  <button id="resetBtn">RESET</button>
+</div>
+
+<div class="bottom-controls">
+  <button id="changeAnimBtn">🎬 Անիմ 1</button>
+  <button id="turboBtn">🚀</button>
+</div>
+
+<script>
+const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
+let numbers=[], drawnNumbers=[], autoPlay=null, isTurbo=false, currentAnim = 0;
+const cardsContainer=document.getElementById('cardsContainer');
+const globalRanges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
+
+function initNumbers(){
+    numbers=[...Array(90).keys()].map(i=>i+1);
+    drawnNumbers=[];
+    const cn = document.getElementById('currentNumber');
+    cn.style.opacity = '0';
+    cn.textContent = '-';
+}
+
+function stopAutoPlay() {
+    if(autoPlay){ 
+        clearInterval(autoPlay); 
+        autoPlay=null; 
+        document.getElementById('autoPlayBtn').textContent = 'Auto'; 
+    }
+}
+
+function closeWinOverlay() {
+  document.getElementById('winOverlay').style.display = 'none';
+}
+
+function createCard(index, savedData = null){
+    const container = document.createElement('div');
+    const card=document.createElement('div'); card.className='card'; 
+    container.appendChild(card);
+    
+    const header = document.createElement('div'); header.className = 'card-header-box';
+    const btnBox = document.createElement('div'); btnBox.className = 'card-actions';
+    
+    const del = document.createElement('button'); del.textContent = '🗑️'; del.onclick = () => container.remove();
+    const edit = document.createElement('button'); edit.textContent = '✏️'; edit.dataset.edit='false';
+    const refresh = document.createElement('button'); refresh.textContent = '🔄';
+    const freeze = document.createElement('button'); freeze.textContent = '❄️';
+    const save = document.createElement('button'); save.textContent = '💾';
+    
+    btnBox.append(del, edit, refresh, freeze, save);
+    
+    const nameInput = document.createElement('input'); nameInput.className = 'card-name';
+    nameInput.value = savedData ? savedData.name : 'Կարտ ' + index;
+    
+    header.append(btnBox, nameInput);
+    card.appendChild(header);
+
+    function fill(data = null){
+        card.querySelectorAll('.row').forEach(r=>r.remove());
+        const used=new Set();
+        for(let r=0;r<3;r++){
+            const row=document.createElement('div'); row.className='row';
+            for(let c=0;c<9;c++){
+                const cell=document.createElement('div'); cell.className='cell';
+                if(data) cell.textContent = data.cells[r][c];
+                cell.onclick=()=>{
+                    if(edit.dataset.edit==='true'){
+                        let v=prompt('Թիվ',cell.textContent); if(v !== null) cell.textContent=v;
+                    } else if(!card.classList.contains('frozen') && cell.textContent) {
+                        cell.classList.toggle('selected'); checkWinner(card);
+                    }
+                };
+                row.appendChild(cell);
+            }
+            if(!data){
+                 let cols=[...Array(9).keys()].sort(()=>Math.random()-0.5).slice(0,5);
+                 cols.forEach(c => {
+                    let cell = row.childNodes[c], n;
+                    do{ n=Math.floor(Math.random()*(globalRanges[c][1]-globalRanges[c][0]+1))+globalRanges[c][0]; }while(used.has(n));
+                    used.add(n); cell.textContent=n;
+                 });
+            }
+            card.appendChild(row);
+        }
+    }
+
+    fill(savedData);
+    
+    refresh.onclick=()=>fill();
+    edit.onclick=()=>{ edit.dataset.edit = edit.dataset.edit==='true'?'false':'true'; edit.textContent = edit.dataset.edit==='true'?'✅':'✏️'; };
+    freeze.onclick=()=>{ card.classList.toggle('frozen'); freeze.textContent = card.classList.contains('frozen') ? '🔥' : '❄️'; };
+    save.onclick=()=>{
+        let all = JSON.parse(localStorage.getItem('loto_cards') || "[]");
+        let cells = []; card.querySelectorAll('.row').forEach(row => { let r=[]; row.querySelectorAll('.cell').forEach(c=>r.push(c.textContent)); cells.push(r); });
+        all.push({name: nameInput.value, cells: cells});
+        localStorage.setItem('loto_cards', JSON.stringify(all)); alert("✅");
+    };
+    
+    cardsContainer.appendChild(container);
+}
+
+function drawNumber(){
+    if(!numbers.length) return;
+    let n = numbers.splice(Math.floor(Math.random()*numbers.length),1)[0];
+    drawnNumbers.push(n);
+    const cn = document.getElementById('currentNumber');
+    cn.textContent=n; cn.style.opacity='1';
+    cn.style.animation = 'none'; void cn.offsetWidth;
+    cn.style.animation = `anim${currentAnim} 0.7s forwards`;
+    
+    let stopNeeded = false;
+
+    document.querySelectorAll('.card').forEach(card => {
+        if (!card.classList.contains('frozen')) {
+            card.querySelectorAll('.cell').forEach(c => {
+                if (+c.textContent === n) {
+                    c.classList.add('selected');
+                    checkWinner(card);
+                }
+            });
+
+            let cells = [...card.querySelectorAll('.cell')].filter(c => c.textContent !== "");
+            let unselectedCount = cells.filter(c => !c.classList.contains('selected')).length;
+            if (unselectedCount === 2) stopNeeded = true;
+        }
+    });
+
+    if (stopNeeded && autoPlay) {
+        stopAutoPlay();
+    }
+}
+
+function checkWinner(card){
+    const cells=[...card.querySelectorAll('.cell')].filter(c=>c.textContent);
+    if(cells.length && cells.every(c=>c.classList.contains('selected'))){
+        stopAutoPlay();
+        const winnerName = card.querySelector('.card-name').value;
+        document.getElementById('winnerNameDisplay').textContent = "Խաղացող՝ " + winnerName;
+        document.getElementById('winOverlay').style.display = 'flex';
+        winSound.play();
+    }
+}
+
+document.getElementById('autoMarkBtn').onclick = () => {
+    document.querySelectorAll('.card').forEach(card => {
+        if (!card.classList.contains('frozen')) {
+            card.querySelectorAll('.cell').forEach(cell => {
+                let val = parseInt(cell.textContent);
+                if (drawnNumbers.includes(val)) cell.classList.add('selected');
+            });
+            checkWinner(card);
+        }
+    });
+};
+
+document.getElementById('resetBtn').onclick = () => {
+    initNumbers();
+    document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('selected'));
+    stopAutoPlay();
+    closeWinOverlay();
+};
+
+document.getElementById('generateCards').onclick = () => { cardsContainer.innerHTML=''; initNumbers(); for (let i = 1; i <= document.getElementById('cardCount').value; i++) createCard(i); };
+document.getElementById('drawNumber').onclick=drawNumber;
+document.getElementById('addCard').onclick=()=>createCard(document.querySelectorAll('.card').length+1);
+document.getElementById('turboBtn').onclick=function(){ isTurbo=!isTurbo; this.style.background=isTurbo?'#ffd700':'#444'; };
+
+document.getElementById('autoPlayBtn').onclick=function(){
+    if(autoPlay){ stopAutoPlay(); }
+    else { 
+        autoPlay=setInterval(drawNumber, isTurbo?600:1500); 
+        this.textContent='Stop'; 
+    }
+};
+
+document.getElementById('changeAnimBtn').onclick = () => { currentAnim = (currentAnim + 1) % 10; document.getElementById('changeAnimBtn').textContent = "🎬 Անիմ " + (currentAnim + 1); };
+
+initNumbers();
+</script>
+</body>
+</html>
