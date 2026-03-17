@@ -67,8 +67,10 @@ button {
 }
 
 .card-name {
-  flex-grow: 1; padding: 3px; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
-  text-align: center; font-weight: bold; background: transparent; color: #fff; font-size: 0.8em; width: 50px;
+  flex-grow: 1; padding: 3px; border: 1px solid rgba(255, 59, 48, 0.5); border-radius: 4px;
+  text-align: center; font-weight: bold; background: rgba(0,0,0,0.3); 
+  color: #ff3b30; /* Քարտի վրայի անունը կարմիր */
+  font-size: 0.9em; width: 60px; outline: none;
 }
 
 .row { display: flex; }
@@ -90,21 +92,22 @@ button {
 /* Մեծ Հաղթանակի Պատուհան */
 #winOverlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center;
-  z-index: 1000; backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(15px);
 }
 .win-content {
-  background: linear-gradient(135deg, #ffd700, #ff8c00);
-  padding: 40px; border-radius: 25px; text-align: center;
-  box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
-  animation: winPop 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49);
-  color: #000; max-width: 90%;
+  background: #000; padding: 40px; border-radius: 25px; text-align: center;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3); border: 2px solid var(--accent-color);
+  animation: winPop 0.5s ease-out; max-width: 85%;
 }
-.win-content h1 { margin: 0; font-size: 3em; text-transform: uppercase; }
-.win-content p { font-size: 1.5em; font-weight: bold; margin: 15px 0; }
-.win-content button { background: #000; color: #ffd700; margin-top: 20px; font-size: 1.2em; padding: 10px 25px; }
+.win-content h1 { margin: 0; font-size: 1.5em; text-transform: uppercase; color: #fff; font-weight: normal; }
+.win-content p#winnerNameDisplay { 
+  font-size: 3.5em; font-weight: 900; margin: 20px 0; color: #ff3b30;
+  text-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+}
+.win-content button { background: var(--accent-color); color: #000; margin-top: 25px; font-size: 1.1em; padding: 10px 25px; border-radius: 8px;}
 
-@keyframes winPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes winPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
 .bottom-controls { margin-top: 25px; padding-top: 15px; border-top: 1px dashed var(--accent-color); width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 </style>
@@ -133,7 +136,7 @@ button {
 <div class="controls">
   <button id="drawNumber">Հանել Թիվ</button>
   <button id="autoPlayBtn">Auto</button>
-  <button id="autoMarkBtn" style="background: linear-gradient(135deg, #2e7d32, #1b5e20); color: #fff;">Auto Mark</button>
+  <button id="autoMarkBtn" style="background: linear-gradient(135deg, #2e7d32, #1b5e20); color: #fff;">Նշել</button>
   <button id="resetBtn">RESET</button>
 </div>
 
@@ -187,6 +190,9 @@ function createCard(index, savedData = null){
     const nameInput = document.createElement('input'); nameInput.className = 'card-name';
     nameInput.value = savedData ? savedData.name : 'Կարտ ' + index;
     
+    // Ավտոմատ նշել տեքստը սեղմելիս
+    nameInput.onclick = function() { this.select(); };
+
     header.append(btnBox, nameInput);
     card.appendChild(header);
 
@@ -270,7 +276,7 @@ function checkWinner(card){
     if(cells.length && cells.every(c=>c.classList.contains('selected'))){
         stopAutoPlay();
         const winnerName = card.querySelector('.card-name').value;
-        document.getElementById('winnerNameDisplay').textContent = "Խաղացող՝ " + winnerName;
+        document.getElementById('winnerNameDisplay').textContent = winnerName;
         document.getElementById('winOverlay').style.display = 'flex';
         winSound.play();
     }
