@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loto LyovT Multi-Winner Edition</title>
+<title>Loto LyovT Egg Crack Edition</title>
 <style>
 :root {
   --main-bg: radial-gradient(circle at top, #1a1d2b, #0b0d14);
@@ -11,7 +11,7 @@
   --cell-bg: rgba(255, 255, 255, 0.08);
   --cell-border: rgba(255, 255, 255, 0.15);
   --accent-color: #ffd700;
-  --challenge-red: #ff0000; /* Վառ կարմիր գույնը */
+  --challenge-red: #ff0000;
 }
 
 /* ԱՆԻՄԱՑԻԱՆԵՐ */
@@ -25,6 +25,26 @@
 @keyframes anim7 { 0% { clip-path: inset(50% 0 50% 0); opacity: 0; } 100% { clip-path: inset(0 0 0 0); opacity: 1; } }
 @keyframes anim8 { 0% { transform: rotate(15deg) translateY(100px); opacity: 0; } 100% { transform: rotate(0) translateY(0); opacity: 1; } }
 @keyframes anim9 { 0% { filter: hue-rotate(180deg); transform: scale(0.5); opacity: 0; } 100% { filter: hue-rotate(0); transform: scale(1); opacity: 1; } }
+
+/* ՁՎԻ ԱԾԵԼՈՒ ԱՆԻՄԱՑԻԱ */
+@keyframes layEgg {
+  0% { transform: translateY(-150px) scale(0.2); opacity: 0; }
+  50% { transform: translateY(0) scale(1.1); opacity: 1; }
+  70% { transform: scale(0.9, 1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ԹԻՎԸ ՔԱՐՏԻ ՎՐԱ ԴՆԵԼՈՒ ԱՆԻՄԱՑԻԱ */
+@keyframes eggDropToCell {
+  0% { transform: translateY(-50px) scale(1.5); opacity: 0; filter: brightness(2); }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: brightness(1); }
+}
+
+/* ՃԱՔԵԼՈՒ ԱՆԻՄԱՑԻԱ */
+@keyframes crackAppear {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
 
 body {
   font-family: sans-serif; background: var(--main-bg); background-attachment: fixed;
@@ -42,35 +62,24 @@ button {
 #currentNumber { 
   width: 80px; height: 100px; line-height: 100px; text-align: center; margin: 15px 0; 
   font-size: 2.5em; font-weight: bold; color: #000;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+  background: #fdfdfd;
   border: 3px solid rgba(255,255,255,0.4); box-shadow: 0 10px 20px rgba(0,0,0,0.6); opacity: 0; 
 }
 
 .cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; flex-direction: column-reverse; }
 
-/* Քարտի արտաքին կոնտեյները, որը պահում է քարտը և տեքստը */
-.card-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
+.card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 
 .card { 
   background: var(--card-bg); padding: 12px 10px; border-radius: 10px; 
   border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(6px); position: relative;
-  width: 345px; /* Ֆիքսված լայնություն չափսերը պահելու համար */
+  width: 345px;
 }
 
-/* Վառ կարմիր գրվածքը քարտի տակ */
 .challenge-label {
-  color: var(--challenge-red);
-  font-size: 0.85em;
-  font-weight: bold;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+  color: var(--challenge-red); font-size: 0.85em; font-weight: bold; font-style: italic;
+  text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
 }
 
 .card.frozen { filter: grayscale(1) brightness(0.5); }
@@ -99,16 +108,27 @@ button {
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; 
   font-weight: 900; font-size: 1.1em;
   transition: background 0.2s, color 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.cell .crack-svg {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
+  width: 100%; height: 100%; opacity: 0; pointer-events: none;
+  stroke: rgba(0, 0, 0, 0.8); stroke-width: 1.5; fill: none;
 }
 
 .cell.selected {
   color: #000 !important; 
   box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
   border: 1px solid rgba(0,0,0,0.2) !important;
-  animation: drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: eggDropToCell 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-@keyframes drop { 0% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.cell.selected .crack-svg {
+  opacity: 1;
+  animation: crackAppear 0.4s ease-out forwards;
+}
 
 #winOverlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -120,15 +140,10 @@ button {
   box-shadow: 0 0 40px rgba(255, 215, 0, 0.3); border: 2px solid var(--accent-color);
   animation: winPop 0.5s ease-out; max-width: 85%;
 }
-.win-content h1 { margin: 0; font-size: 1.5em; text-transform: uppercase; color: #fff; font-weight: normal; }
 .win-content p#winnerNameDisplay { 
   font-size: 2.5em; font-weight: 900; margin: 20px 0; color: #ff3b30;
-  text-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
-  white-space: pre-wrap; 
+  text-shadow: 0 0 15px rgba(255, 59, 48, 0.4); white-space: pre-wrap; 
 }
-.win-content button { background: var(--accent-color); color: #000; margin-top: 25px; font-size: 1.1em; padding: 10px 25px; border-radius: 8px;}
-
-@keyframes winPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
 .bottom-controls { margin-top: 25px; padding-top: 15px; border-top: 1px dashed var(--accent-color); width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 </style>
@@ -167,6 +182,15 @@ button {
 </div>
 
 <script>
+const crackSvgHtml = `
+<svg class="crack-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,10 L45,25 L55,35 L40,50 L60,65 L48,80 L52,90" />
+  <path d="M45,25 L30,20 L20,30" />
+  <path d="M55,35 L70,30 L80,40" />
+  <path d="M40,50 L25,55 L15,70" />
+  <path d="M60,65 L75,60 L85,75" />
+</svg>`;
+
 const winSound = new Audio('https://www.myinstants.com/media/sounds/tada.mp3');
 let numbers=[], drawnNumbers=[], autoPlay=null, isTurbo=false, currentAnim = 0;
 const cardsContainer=document.getElementById('cardsContainer');
@@ -191,43 +215,31 @@ function initNumbers(){
 }
 
 function stopAutoPlay() {
-    if(autoPlay){ 
-        clearInterval(autoPlay); 
-        autoPlay=null; 
-        document.getElementById('autoPlayBtn').textContent = 'Auto'; 
-    }
+    if(autoPlay){ clearInterval(autoPlay); autoPlay=null; document.getElementById('autoPlayBtn').textContent = 'Auto'; }
 }
 
-function closeWinOverlay() {
-  document.getElementById('winOverlay').style.display = 'none';
-}
+function closeWinOverlay() { document.getElementById('winOverlay').style.display = 'none'; }
 
 function createCard(index, savedData = null){
-    // Ստեղծում ենք wrapper, որը կպահի քարտը և ներքևի պիտակը
     const wrapper = document.createElement('div');
     wrapper.className = 'card-wrapper';
-
-    const card = document.createElement('div'); 
-    card.className = 'card'; 
-    wrapper.appendChild(card);
-    
+    const card = document.createElement('div'); card.className = 'card'; wrapper.appendChild(card);
     const header = document.createElement('div'); header.className = 'card-header-box';
     const btnBox = document.createElement('div'); btnBox.className = 'card-actions';
-    
     const del = document.createElement('button'); del.textContent = '🗑️'; del.onclick = () => wrapper.remove();
     const edit = document.createElement('button'); edit.textContent = '✏️'; edit.dataset.edit='false';
     const refresh = document.createElement('button'); refresh.textContent = '🔄';
     const freeze = document.createElement('button'); freeze.textContent = '❄️';
     const save = document.createElement('button'); save.textContent = '💾';
-    
     btnBox.append(del, edit, refresh, freeze, save);
-    
     const nameInput = document.createElement('input'); nameInput.className = 'card-name';
     nameInput.value = savedData ? savedData.name : 'Կարտ ' + index;
+    
+    // ՍԱ ԱՎԵԼԱՑՐԵԼ ԵՄ, ՈՐ ՄԻԱՆԳԱՄԻՑ ՆՇԻ ՏԵՔՍՏԸ
+    nameInput.onfocus = function() { this.select(); };
     nameInput.onclick = function() { this.select(); };
 
-    header.append(btnBox, nameInput);
-    card.appendChild(header);
+    header.append(btnBox, nameInput); card.appendChild(header);
 
     function fill(data = null){
         card.querySelectorAll('.row').forEach(r=>r.remove());
@@ -236,23 +248,20 @@ function createCard(index, savedData = null){
             const row=document.createElement('div'); row.className='row';
             for(let c=0;c<9;c++){
                 const cell=document.createElement('div'); cell.className='cell';
-                
-                const setCellNumber = (n) => {
-                    cell.textContent = n;
-                    if (n) {
-                        cell.style.color = getNumberTextColor(parseInt(n));
-                    } else {
-                        cell.style.color = '#fff';
-                    }
-                };
+                cell.innerHTML = crackSvgHtml;
+                const numberSpan = document.createElement('span'); 
+                cell.appendChild(numberSpan);
 
+                const setCellNumber = (n) => {
+                    numberSpan.textContent = n;
+                    cell.style.color = n ? getNumberTextColor(parseInt(n)) : '#fff';
+                };
                 if(data) setCellNumber(data.cells[r][c]);
-                
                 cell.onclick=()=>{
                     if(edit.dataset.edit==='true'){
-                        let v=prompt('Թիվ',cell.textContent); 
+                        let v=prompt('Թիվ',numberSpan.textContent); 
                         if(v !== null) setCellNumber(v);
-                    } else if(!card.classList.contains('frozen') && cell.textContent) {
+                    } else if(!card.classList.contains('frozen') && numberSpan.textContent) {
                         toggleCell(cell);
                         checkAllWinners();
                     }
@@ -263,39 +272,31 @@ function createCard(index, savedData = null){
                  let cols=[...Array(9).keys()].sort(()=>Math.random()-0.5).slice(0,5);
                  cols.forEach(c => {
                     let cell = row.childNodes[c], n;
+                    let numberSpan = cell.querySelector('span');
                     do{ n=Math.floor(Math.random()*(globalRanges[c][1]-globalRanges[c][0]+1))+globalRanges[c][0]; }while(used.has(n));
-                    used.add(n); 
-                    cell.textContent=n;
-                    cell.style.color = getNumberTextColor(n);
+                    used.add(n); numberSpan.textContent=n; cell.style.color = getNumberTextColor(n);
                  });
             }
             card.appendChild(row);
         }
     }
-
     fill(savedData);
-    
     refresh.onclick=()=>fill();
     edit.onclick=()=>{ edit.dataset.edit = edit.dataset.edit==='true'?'false':'true'; edit.textContent = edit.dataset.edit==='true'?'✅':'✏️'; };
     freeze.onclick=()=>{ card.classList.toggle('frozen'); freeze.textContent = card.classList.contains('frozen') ? '🔥' : '❄️'; };
     save.onclick=()=>{
         let all = JSON.parse(localStorage.getItem('loto_cards') || "[]");
-        let cells = []; card.querySelectorAll('.row').forEach(row => { let r=[]; row.querySelectorAll('.cell').forEach(c=>r.push(c.textContent)); cells.push(r); });
+        let cells = []; card.querySelectorAll('.row').forEach(row => { let r=[]; row.querySelectorAll('.cell span').forEach(c=>r.push(c.textContent)); cells.push(r); });
         all.push({name: nameInput.value, cells: cells});
         localStorage.setItem('loto_cards', JSON.stringify(all)); alert("✅");
     };
-
-    // Ավելացնում ենք կարմիր գրվածքը քարտի տակ
-    const challengeLabel = document.createElement('div');
-    challengeLabel.className = 'challenge-label';
-    challengeLabel.textContent = 'logic & math challenge';
-    wrapper.appendChild(challengeLabel);
-    
-    cardsContainer.appendChild(wrapper);
+    const challengeLabel = document.createElement('div'); challengeLabel.className = 'challenge-label'; challengeLabel.textContent = 'logic & math challenge';
+    wrapper.appendChild(challengeLabel); cardsContainer.appendChild(wrapper);
 }
 
 function toggleCell(cell) {
-    const val = parseInt(cell.textContent);
+    const numberSpan = cell.querySelector('span');
+    const val = parseInt(numberSpan.textContent);
     if (!val) return;
     cell.classList.toggle('selected');
     if (cell.classList.contains('selected')) {
@@ -310,23 +311,15 @@ function toggleCell(cell) {
 function checkAllWinners() {
     let winners = [];
     document.querySelectorAll('.card').forEach(card => {
-        const cells = [...card.querySelectorAll('.cell')].filter(c => c.textContent);
-        if (cells.length && cells.every(c => c.classList.contains('selected'))) {
-            winners.push(card.querySelector('.card-name').value);
-        }
+        const cells = [...card.querySelectorAll('.cell')].filter(c => c.querySelector('span').textContent);
+        if (cells.length && cells.every(c => c.classList.contains('selected'))) winners.push(card.querySelector('.card-name').value);
     });
-
     if (winners.length > 0) {
         stopAutoPlay();
-        const display = document.getElementById('winnerNameDisplay');
-        const title = document.getElementById('winTitle');
-        
-        title.textContent = winners.length > 1 ? "🏆 ՀԱՂԹՈՂՆԵՐ" : "🏆 ՀԱՂԹԱՆԱԿ";
-        display.textContent = winners.join("\n");
-        
+        document.getElementById('winTitle').textContent = winners.length > 1 ? "🏆 ՀԱՂԹՈՂՆԵՐ" : "🏆 ՀԱՂԹԱՆԱԿ";
+        document.getElementById('winnerNameDisplay').textContent = winners.join("\n");
         document.getElementById('winOverlay').style.display = 'flex';
-        winSound.play();
-        return true;
+        winSound.play(); return true;
     }
     return false;
 }
@@ -335,44 +328,37 @@ function drawNumber(){
     if(!numbers.length) return;
     let n = numbers.splice(Math.floor(Math.random()*numbers.length),1)[0];
     drawnNumbers.push(n);
-    
     const cn = document.getElementById('currentNumber');
-    cn.textContent=n; 
-    cn.style.background = getNumberGradient(n); 
-    cn.style.opacity='1';
+    cn.textContent=n; cn.style.background = getNumberGradient(n); cn.style.opacity='1';
     cn.style.animation = 'none'; void cn.offsetWidth;
-    cn.style.animation = `anim${currentAnim} 0.7s forwards`;
+    cn.style.animation = `layEgg 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards`;
     
     let stopNeeded = false;
-
     document.querySelectorAll('.card').forEach(card => {
         if (!card.classList.contains('frozen')) {
             card.querySelectorAll('.cell').forEach(c => {
-                if (+c.textContent === n) {
+                const numberSpan = c.querySelector('span');
+                if (+numberSpan.textContent === n) {
                     c.classList.add('selected');
                     c.style.background = getNumberGradient(n);
                     c.style.color = '#000';
                 }
             });
-
-            let cells = [...card.querySelectorAll('.cell')].filter(c => c.textContent !== "");
+            let cells = [...card.querySelectorAll('.cell')].filter(c => c.querySelector('span').textContent !== "");
             let unselectedCount = cells.filter(c => !c.classList.contains('selected')).length;
             if (unselectedCount === 2) stopNeeded = true;
         }
     });
-
     const hasWinner = checkAllWinners();
-
-    if (!hasWinner && stopNeeded && autoPlay) {
-        stopAutoPlay();
-    }
+    if (!hasWinner && stopNeeded && autoPlay) stopAutoPlay();
 }
 
 document.getElementById('autoMarkBtn').onclick = () => {
     document.querySelectorAll('.card').forEach(card => {
         if (!card.classList.contains('frozen')) {
             card.querySelectorAll('.cell').forEach(cell => {
-                let val = parseInt(cell.textContent);
+                const numberSpan = cell.querySelector('span');
+                let val = parseInt(numberSpan.textContent);
                 if (drawnNumbers.includes(val)) {
                     cell.classList.add('selected');
                     cell.style.background = getNumberGradient(val);
@@ -389,15 +375,11 @@ document.getElementById('resetBtn').onclick = () => {
     document.querySelectorAll('.cell').forEach(cell => {
         cell.classList.remove('selected');
         cell.style.background = 'var(--cell-bg)';
-        const val = parseInt(cell.textContent);
-        if (val) {
-            cell.style.color = getNumberTextColor(val);
-        } else {
-            cell.style.color = '#fff';
-        }
+        const numberSpan = cell.querySelector('span');
+        const val = parseInt(numberSpan.textContent);
+        cell.style.color = val ? getNumberTextColor(val) : '#fff';
     });
-    stopAutoPlay();
-    closeWinOverlay();
+    stopAutoPlay(); closeWinOverlay();
 };
 
 document.getElementById('generateCards').onclick = () => { cardsContainer.innerHTML=''; initNumbers(); for (let i = 1; i <= document.getElementById('cardCount').value; i++) createCard(i); };
@@ -407,10 +389,7 @@ document.getElementById('turboBtn').onclick=function(){ isTurbo=!isTurbo; this.s
 
 document.getElementById('autoPlayBtn').onclick=function(){
     if(autoPlay){ stopAutoPlay(); }
-    else { 
-        autoPlay=setInterval(drawNumber, isTurbo?600:1500); 
-        this.textContent='Stop'; 
-    }
+    else { autoPlay=setInterval(drawNumber, isTurbo?600:1500); this.textContent='Stop'; }
 };
 
 document.getElementById('changeAnimBtn').onclick = () => { currentAnim = (currentAnim + 1) % 10; document.getElementById('changeAnimBtn').textContent = "🎬 Անիմ " + (currentAnim + 1); };
