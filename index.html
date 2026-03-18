@@ -28,25 +28,10 @@
 
 /* ՁՎԻ ԱԾԵԼՈՒ ԵՎ ԳԼՈՐՎԵԼՈՒ ԱՆԻՄԱՑԻԱ */
 @keyframes layEggAndRoll {
-  /* ՈՒՂՂՈՒՄ: Ձվի սկզբնական կետը մի փոքր փոխված է հավի նոր դիրքին համապատասխան */
-  0% { 
-    transform: translate(-30px, 35px) scale(0.1) rotate(-90deg); 
-    opacity: 0;
-    z-index: 1;
-  }
-  30% { 
-    transform: translate(-10px, 35px) scale(1) rotate(-90deg); 
-    opacity: 1; 
-    z-index: 1;
-  }
-  40% {
-    z-index: 25;
-  }
-  100% { 
-    transform: translate(110px, 75px) scale(1) rotate(360deg); 
-    opacity: 1;
-    z-index: 25;
-  }
+  0% { transform: translate(-30px, 35px) scale(0.1) rotate(-90deg); opacity: 0; z-index: 1; }
+  30% { transform: translate(-10px, 35px) scale(1) rotate(-90deg); opacity: 1; z-index: 1; }
+  40% { z-index: 25; }
+  100% { transform: translate(110px, 75px) scale(1) rotate(360deg); opacity: 1; z-index: 25; }
 }
 
 @keyframes eggDropToCell {
@@ -80,47 +65,22 @@ body {
   position: relative;
 }
 
-/* ՀԱՎԸ ՏԱՐՎԱԾ Է ՁԱԽ */
 #chickenDisplay {
-  position: relative;
-  width: 250px; 
-  height: auto;
-  margin: 15px 80px 15px 0; /* Ավելացվել է 80px margin աջից, որը հավին հրում է ձախ */
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative; width: 250px; height: auto; margin: 15px 80px 15px 0; 
+  z-index: 10; display: flex; justify-content: center; align-items: center;
 }
 
-#chickenImage {
-  width: 100%;
-  height: auto;
-  position: relative;
-  z-index: 10;
-}
+#chickenImage { width: 100%; height: auto; position: relative; z-index: 10; }
 
 #currentNumber { 
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50px; 
-  height: 65px; 
-  line-height: 65px; 
-  text-align: center;
-  font-size: 1.5em;
-  font-weight: bold; 
-  color: #000;
-  border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
-  border: 2px solid rgba(255,255,255,0.4); 
-  box-shadow: 0 5px 10px rgba(0,0,0,0.6); 
-  opacity: 0; 
-  pointer-events: none;
-  z-index: 1;
+  position: absolute; top: 50%; left: 50%; width: 50px; height: 65px; 
+  line-height: 65px; text-align: center; font-size: 1.5em; font-weight: bold; 
+  color: #000; border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+  border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 5px 10px rgba(0,0,0,0.6); 
+  opacity: 0; pointer-events: none; z-index: 1;
 }
 
-#chickenDisplay.shake #chickenImage {
-  animation: henShake 0.5s linear infinite;
-}
+#chickenDisplay.shake #chickenImage { animation: henShake 0.5s linear infinite; }
 
 .controls { margin: 10px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; z-index: 30; position: relative;}
 button {
@@ -133,8 +93,7 @@ button {
 .card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .card { 
   background: var(--card-bg); padding: 12px 10px; border-radius: 10px; 
-  border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(6px); position: relative;
-  width: 345px;
+  border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(6px); position: relative; width: 345px;
 }
 .challenge-label {
   color: var(--challenge-red); font-size: 0.85em; font-weight: bold; font-style: italic;
@@ -153,47 +112,48 @@ button {
 }
 .card-name {
   flex-grow: 1; padding: 3px; border: 1px solid rgba(255, 59, 48, 0.5); border-radius: 4px;
-  text-align: center; font-weight: bold; background: rgba(0,0,0,0.3); 
-  color: #ff3b30; font-size: 0.9em; width: 60px; outline: none;
+  text-align: center; font-weight: bold; background: rgba(0,0,0,0.3); color: #ff3b30; font-size: 0.9em; width: 60px; outline: none;
 }
 .row { display: flex; }
 .cell {
   width: 36px; height: 46px; margin: 1.5px; line-height: 46px; text-align: center; 
   background: var(--cell-bg); border: 1px solid var(--cell-border);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; 
-  font-weight: 900; font-size: 1.1em; transition: background 0.2s, color 0.1s;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; font-weight: 900; font-size: 1.1em; transition: background 0.2s, color 0.1s;
   position: relative; overflow: hidden;
 }
 .cell .crack-svg {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5);
-  width: 100%; height: 100%; opacity: 0; pointer-events: none;
-  stroke: rgba(0, 0, 0, 0.8); stroke-width: 1.5; fill: none;
+  width: 100%; height: 100%; opacity: 0; pointer-events: none; stroke: rgba(0, 0, 0, 0.8); stroke-width: 1.5; fill: none;
 }
 .cell.selected {
-  color: #000 !important; 
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
-  border: 1px solid rgba(0,0,0,0.2) !important;
+  color: #000 !important; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 1px solid rgba(0,0,0,0.2) !important;
   animation: eggDropToCell 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
-.cell.selected .crack-svg {
-  opacity: 1;
-  animation: crackAppear 0.4s ease-out forwards;
-}
+.cell.selected .crack-svg { opacity: 1; animation: crackAppear 0.4s ease-out forwards; }
+
 #winOverlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center;
-  z-index: 1000; backdrop-filter: blur(15px);
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(15px);
 }
 .win-content {
-  background: #000; padding: 40px; border-radius: 25px; text-align: center;
-  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3); border: 2px solid var(--accent-color);
-  animation: winPop 0.5s ease-out; max-width: 85%;
+  background: #000; padding: 40px; border-radius: 25px; text-align: center; box-shadow: 0 0 40px rgba(255, 215, 0, 0.3); border: 2px solid var(--accent-color); animation: winPop 0.5s ease-out; max-width: 85%;
 }
-.win-content p#winnerNameDisplay { 
-  font-size: 2.5em; font-weight: 900; margin: 20px 0; color: #ff3b30;
-  text-shadow: 0 0 15px rgba(255, 59, 48, 0.4); white-space: pre-wrap; 
-}
+.win-content p#winnerNameDisplay { font-size: 2.5em; font-weight: 900; margin: 20px 0; color: #ff3b30; text-shadow: 0 0 15px rgba(255, 59, 48, 0.4); white-space: pre-wrap; }
 .bottom-controls { margin-top: 25px; padding-top: 15px; border-top: 1px dashed var(--accent-color); width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; z-index: 20; position: relative;}
+
+/* ՊԱՏՄՈՒԹՅԱՆ ՈՃԵՐԸ */
+#eggsContainerWrapper { display: none; margin-top: 20px; flex-direction: column; align-items: center; width: 100%; }
+#allEggsDisplay {
+  display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 15px; border: 1px solid var(--accent-color); max-width: 380px;
+}
+.mini-egg {
+  width: 32px; height: 42px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: var(--cell-bg); font-size: 0.85em; font-weight: bold;
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
+}
+/* Ճաքը թաքցված է սկզբում */
+.mini-egg .crack-svg { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; stroke: rgba(0, 0, 0, 0.8); stroke-width: 1.5; fill: none; }
+
+.mini-egg.selected { color: #000 !important; animation: eggDropToCell 0.4s forwards; }
+.mini-egg.selected .crack-svg { display: block; animation: crackAppear 0.4s ease-out forwards; }
 </style>
 </head>
 <body>
@@ -221,10 +181,17 @@ button {
 </div>
 
 <div class="controls">
-  <button id="drawNumber">Հանել Թիվ</button>
+  <button id="drawNumber">ԱԾԵԼ ՁՈՒ</button>
   <button id="autoPlayBtn">Auto</button>
   <button id="autoMarkBtn" style="background: linear-gradient(135deg, #2e7d32, #1b5e20); color: #fff;">Նշել</button>
-  <button id="resetBtn">RESET</button>
+  <button id="shuffleBtn" style="background: linear-gradient(135deg, #6a11cb, #2575fc); color: #fff;">Խառնել</button>
+  <button id="resetBtn">ՄԱՔՐԵԼ</button>
+</div>
+
+<button id="toggleHistoryBtn" style="margin-top: 10px;">📜 Պատմություն</button>
+
+<div id="eggsContainerWrapper">
+  <div id="allEggsDisplay"></div>
 </div>
 
 <div class="bottom-controls">
@@ -248,36 +215,37 @@ const cardsContainer=document.getElementById('cardsContainer');
 const chickenDisplay = document.getElementById('chickenDisplay');
 const globalRanges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
 
-function getNumberTextColor(n) {
-    const hue = (n - 1) * 4;
-    return `hsl(${hue}, 100%, 65%)`;
-}
+function getNumberTextColor(n) { const hue = (n - 1) * 4; return `hsl(${hue}, 100%, 65%)`; }
+function getNumberGradient(n) { const hue = (n - 1) * 4; return `radial-gradient(circle at 40% 40%, hsl(${hue}, 90%, 80%), hsl(${hue}, 85%, 55%), hsl(${hue}, 85%, 35%))`; }
 
-function getNumberGradient(n) {
-    const hue = (n - 1) * 4;
-    return `radial-gradient(circle at 40% 40%, hsl(${hue}, 90%, 80%), hsl(${hue}, 85%, 55%), hsl(${hue}, 85%, 35%))`;
+function initHistoryEggs() {
+    const container = document.getElementById('allEggsDisplay');
+    container.innerHTML = '';
+    for(let i=1; i<=90; i++) {
+        const egg = document.createElement('div');
+        egg.className = 'mini-egg';
+        egg.id = 'hist-egg-' + i;
+        egg.innerHTML = crackSvgHtml + `<span>${i}</span>`;
+        egg.style.color = getNumberTextColor(i);
+        container.appendChild(egg);
+    }
 }
 
 function initNumbers(){
     numbers=[...Array(90).keys()].map(i=>i+1);
     drawnNumbers=[];
     const cn = document.getElementById('currentNumber');
-    cn.style.opacity = '0';
-    cn.textContent = '-';
+    cn.style.opacity = '0'; cn.textContent = '-';
+    initHistoryEggs();
 }
 
-function stopAutoPlay() {
-    if(autoPlay){ clearInterval(autoPlay); autoPlay=null; document.getElementById('autoPlayBtn').textContent = 'Auto'; }
-}
-
+function stopAutoPlay() { if(autoPlay){ clearInterval(autoPlay); autoPlay=null; document.getElementById('autoPlayBtn').textContent = 'Auto'; } }
 function closeWinOverlay() { document.getElementById('winOverlay').style.display = 'none'; }
 
 function createCard(index, savedData = null){
     const wrapper = document.createElement('div');
     wrapper.className = 'card-wrapper';
-    const card = document.createElement('div'); 
-    card.className = 'card'; 
-    wrapper.appendChild(card);
+    const card = document.createElement('div'); card.className = 'card'; wrapper.appendChild(card);
     const header = document.createElement('div'); header.className = 'card-header-box';
     const btnBox = document.createElement('div'); btnBox.className = 'card-actions';
     const del = document.createElement('button'); del.textContent = '🗑️'; del.onclick = () => wrapper.remove();
@@ -289,8 +257,7 @@ function createCard(index, savedData = null){
     const nameInput = document.createElement('input'); nameInput.className = 'card-name';
     nameInput.value = savedData ? savedData.name : 'Կարտ ' + index;
     nameInput.onfocus = function() { this.select(); };
-    header.append(btnBox, nameInput);
-    card.appendChild(header);
+    header.append(btnBox, nameInput); card.appendChild(header);
 
     function fill(data = null){
         card.querySelectorAll('.row').forEach(r=>r.remove());
@@ -300,9 +267,7 @@ function createCard(index, savedData = null){
             for(let c=0;c<9;c++){
                 const cell=document.createElement('div'); cell.className='cell';
                 cell.innerHTML = crackSvgHtml;
-                const numberSpan = document.createElement('span'); 
-                cell.appendChild(numberSpan);
-
+                const numberSpan = document.createElement('span'); cell.appendChild(numberSpan);
                 const setCellNumber = (n) => {
                     numberSpan.textContent = n;
                     cell.style.color = n ? getNumberTextColor(parseInt(n)) : '#fff';
@@ -313,8 +278,7 @@ function createCard(index, savedData = null){
                         let v=prompt('Թիվ',numberSpan.textContent); 
                         if(v !== null) setCellNumber(v);
                     } else if(!card.classList.contains('frozen') && numberSpan.textContent) {
-                        toggleCell(cell);
-                        checkAllWinners();
+                        toggleCell(cell); checkAllWinners();
                     }
                 };
                 row.appendChild(cell);
@@ -352,11 +316,9 @@ function toggleCell(cell) {
     if (!val) return;
     cell.classList.toggle('selected');
     if (cell.classList.contains('selected')) {
-        cell.style.background = getNumberGradient(val);
-        cell.style.color = '#000';
+        cell.style.background = getNumberGradient(val); cell.style.color = '#000';
     } else {
-        cell.style.background = 'var(--cell-bg)';
-        cell.style.color = getNumberTextColor(val);
+        cell.style.background = 'var(--cell-bg)'; cell.style.color = getNumberTextColor(val);
     }
 }
 
@@ -364,9 +326,7 @@ function checkAllWinners() {
     let winners = [];
     document.querySelectorAll('.card').forEach(card => {
         const cells = [...card.querySelectorAll('.cell')].filter(c => c.querySelector('span').textContent);
-        if (cells.length && cells.every(c => c.classList.contains('selected'))) {
-            winners.push(card.querySelector('.card-name').value);
-        }
+        if (cells.length && cells.every(c => c.classList.contains('selected'))) winners.push(card.querySelector('.card-name').value);
     });
     if (winners.length > 0) {
         stopAutoPlay();
@@ -382,12 +342,19 @@ function drawNumber(){
     if(!numbers.length) return;
     let n = numbers.splice(Math.floor(Math.random()*numbers.length),1)[0];
     drawnNumbers.push(n);
+
+    // Պատմության մեջ նշել
+    const histEgg = document.getElementById('hist-egg-' + n);
+    if(histEgg) {
+        histEgg.classList.add('selected');
+        histEgg.style.background = getNumberGradient(n);
+        // Սև գույն թիվը դնելուց հետո
+        histEgg.querySelector('span').style.color = '#000';
+    }
+
     const cn = document.getElementById('currentNumber');
-    cn.textContent=n; 
-    cn.style.background = getNumberGradient(n);
-    cn.style.opacity='1';
-    cn.style.animation = 'none'; 
-    void cn.offsetWidth;
+    cn.textContent=n; cn.style.background = getNumberGradient(n); cn.style.opacity='1';
+    cn.style.animation = 'none'; void cn.offsetWidth;
     cn.style.animation = `layEggAndRoll 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
     chickenDisplay.classList.add('shake');
     setTimeout(() => { chickenDisplay.classList.remove('shake'); }, 500);
@@ -398,18 +365,14 @@ function drawNumber(){
             card.querySelectorAll('.cell').forEach(c => {
                 const numberSpan = c.querySelector('span');
                 if (+numberSpan.textContent === n) {
-                    c.classList.add('selected');
-                    c.style.background = getNumberGradient(n);
-                    c.style.color = '#000';
+                    c.classList.add('selected'); c.style.background = getNumberGradient(n); c.style.color = '#000';
                 }
             });
             let cells = [...card.querySelectorAll('.cell')].filter(c => c.querySelector('span').textContent !== "");
-            let unselectedCount = cells.filter(c => !c.classList.contains('selected')).length;
-            if (unselectedCount === 2) stopNeeded = true;
+            if (cells.filter(c => !c.classList.contains('selected')).length === 2) stopNeeded = true;
         }
     });
-    const hasWinner = checkAllWinners();
-    if (!hasWinner && stopNeeded && autoPlay) stopAutoPlay();
+    if (!checkAllWinners() && stopNeeded && autoPlay) stopAutoPlay();
 }
 
 document.getElementById('autoMarkBtn').onclick = () => {
@@ -419,9 +382,7 @@ document.getElementById('autoMarkBtn').onclick = () => {
                 const numberSpan = cell.querySelector('span');
                 let val = parseInt(numberSpan.textContent);
                 if (drawnNumbers.includes(val)) {
-                    cell.classList.add('selected');
-                    cell.style.background = getNumberGradient(val);
-                    cell.style.color = '#000';
+                    cell.classList.add('selected'); cell.style.background = getNumberGradient(val); cell.style.color = '#000';
                 }
             });
         }
@@ -432,13 +393,28 @@ document.getElementById('autoMarkBtn').onclick = () => {
 document.getElementById('resetBtn').onclick = () => {
     initNumbers();
     document.querySelectorAll('.cell').forEach(cell => {
-        cell.classList.remove('selected');
-        cell.style.background = 'var(--cell-bg)';
-        const numberSpan = cell.querySelector('span');
-        const val = parseInt(numberSpan.textContent);
+        cell.classList.remove('selected'); cell.style.background = 'var(--cell-bg)';
+        const val = parseInt(cell.querySelector('span').textContent);
         cell.style.color = val ? getNumberTextColor(val) : '#fff';
     });
     stopAutoPlay(); closeWinOverlay();
+};
+
+document.getElementById('shuffleBtn').onclick = () => {
+    const wrappers = Array.from(cardsContainer.children);
+    for (let i = wrappers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        cardsContainer.appendChild(wrappers[j]);
+    }
+};
+
+document.getElementById('toggleHistoryBtn').onclick = function() {
+    const wrapper = document.getElementById('eggsContainerWrapper');
+    if (wrapper.style.display === 'flex') {
+        wrapper.style.display = 'none'; this.textContent = '📜 Պատմություն';
+    } else {
+        wrapper.style.display = 'flex'; this.textContent = '❌ Պատմություն';
+    }
 };
 
 document.getElementById('generateCards').onclick = () => { cardsContainer.innerHTML=''; initNumbers(); for (let i = 1; i <= document.getElementById('cardCount').value; i++) createCard(i); };
@@ -446,7 +422,7 @@ document.getElementById('drawNumber').onclick=drawNumber;
 document.getElementById('addCard').onclick=()=>createCard(document.querySelectorAll('.card').length+1);
 document.getElementById('turboBtn').onclick=function(){ isTurbo=!isTurbo; this.style.background=isTurbo?'#ffd700':'#444'; };
 document.getElementById('autoPlayBtn').onclick=function(){
-    if(autoPlay){ stopAutoPlay(); }
+    if(autoPlay) stopAutoPlay();
     else { autoPlay=setInterval(drawNumber, isTurbo?600:1500); this.textContent='Stop'; }
 };
 document.getElementById('changeAnimBtn').onclick = () => { currentAnim = (currentAnim + 1) % 10; document.getElementById('changeAnimBtn').textContent = "🎬 Անիմ " + (currentAnim + 1); };
